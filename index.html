@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澄禾超市｜客户购物与商品管理网站</title>
+  <meta
+    name="description"
+    content="基于 C 语言超市系统设计的网页版本，支持客户登录、商品浏览、分类筛选、购物车、VIP 结算与管理员商品管理。"
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero" id="top">
+      <nav class="nav">
+        <a class="brand" href="#top">
+          <span class="brand-mark">CH</span>
+          <span class="brand-copy">
+            <strong>澄禾超市 Web 系统</strong>
+            <small>Based on the C supermarket functions</small>
+          </span>
+        </a>
+        <div class="nav-links">
+          <a href="#shop">客户购物</a>
+          <a href="#cart-panel">购物车</a>
+          <a href="#receipt">结算小票</a>
+          <a href="#admin">管理员面板</a>
+        </div>
+      </nav>
+
+      <section class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Customer Facing Site</p>
+          <h1>把 C 语言超市系统，做成客户真正能用的网页。</h1>
+          <p class="hero-text">
+            这个网站按你给的 C 程序逻辑实现，保留了普通用户 / VIP 登录、
+            浏览商品、按类别查找、加入购物车、清空购物车、结算与 VIP 折扣，
+            同时也加入了管理员商品管理面板，方便演示整套业务流程。
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#shop">开始购物</a>
+            <a class="button button-secondary" href="#admin">查看管理端</a>
+          </div>
+          <div class="quick-badges">
+            <span>普通用户账号：`user / 123456`</span>
+            <span>VIP 账号：`vipuser / 888888`</span>
+          </div>
+          <ul class="hero-metrics">
+            <li class="metric-card">
+              <strong data-count-up="7" data-suffix="项">0</strong>
+              <span>客户侧核心功能</span>
+            </li>
+            <li class="metric-card">
+              <strong data-count-up="6" data-suffix="项">0</strong>
+              <span>管理员侧操作</span>
+            </li>
+            <li class="metric-card">
+              <strong data-count-up="9" data-suffix="折">0</strong>
+              <span>VIP 结算优惠</span>
+            </li>
+          </ul>
+        </div>
+
+        <aside class="hero-panel">
+          <p class="panel-label">当前状态</p>
+          <div class="status-card">
+            <span class="status-dot"></span>
+            <div>
+              <strong id="user-status">未登录</strong>
+              <p id="user-status-copy">请先登录后再结算，逻辑与 C 程序保持一致。</p>
+            </div>
+          </div>
+
+          <div class="login-box">
+            <div class="login-box-head">
+              <h2>客户登录</h2>
+              <span>映射 `loginuser()`</span>
+            </div>
+            <form class="login-form" id="login-form" novalidate>
+              <label class="field">
+                <span>账号</span>
+                <input id="login-username" name="username" type="text" placeholder="输入账号">
+              </label>
+              <label class="field">
+                <span>密码</span>
+                <input id="login-password" name="password" type="password" placeholder="输入密码">
+              </label>
+              <div class="form-actions">
+                <button class="button button-primary" type="submit">登录</button>
+                <button class="ghost-button" id="logout-button" type="button">退出登录</button>
+              </div>
+              <p class="form-feedback" id="login-feedback" aria-live="polite"></p>
+            </form>
+          </div>
+        </aside>
+      </section>
+    </header>
+
+    <main>
+      <section class="section" id="shop">
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">Shop</p>
+            <h2>客户购物区</h2>
+          </div>
+          <p class="section-note">
+            对应 C 程序里的 `showProductsForCustomer()`、`showproductbycategory()` 和 `addtocart()`。
+          </p>
+        </div>
+
+        <div class="controls-bar">
+          <label class="control-field">
+            <span>按类别浏览</span>
+            <select id="category-filter">
+              <option value="all">全部类别</option>
+            </select>
+          </label>
+          <label class="control-field">
+            <span>按名称搜索</span>
+            <input id="search-input" type="text" placeholder="输入商品名称">
+          </label>
+          <button class="ghost-button" id="reset-filters" type="button">重置筛选</button>
+        </div>
+
+        <div class="shop-layout">
+          <section class="product-grid" id="product-grid"></section>
+
+          <aside class="cart-panel" id="cart-panel">
+            <div class="panel-head">
+              <div>
+                <p class="panel-label">Cart</p>
+                <h3>购物车</h3>
+              </div>
+              <button class="ghost-button" id="clear-cart-button" type="button">清空购物车</button>
+            </div>
+
+            <div class="cart-list" id="cart-list"></div>
+
+            <div class="cart-summary">
+              <div>
+                <span>商品种类</span>
+                <strong id="cart-count">0</strong>
+              </div>
+              <div>
+                <span>原价合计</span>
+                <strong id="cart-total">¥0.00</strong>
+              </div>
+              <div>
+                <span>VIP 优惠</span>
+                <strong id="cart-discount">¥0.00</strong>
+              </div>
+              <div class="summary-total">
+                <span>实付参考</span>
+                <strong id="cart-payable">¥0.00</strong>
+              </div>
+            </div>
+
+            <div class="cart-actions">
+              <button class="button button-primary" id="checkout-button" type="button">立即结算</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section section-soft" id="receipt">
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">Receipt</p>
+            <h2>结算小票</h2>
+          </div>
+          <p class="section-note">
+            对应 `checkout()`，结算后会同步扣减库存，并保存到浏览器本地数据中。
+          </p>
+        </div>
+
+        <div class="receipt-card" id="receipt-card">
+          <div class="receipt-empty" id="receipt-empty">
+            还没有最近一次结算记录。先添加商品到购物车，再点击“立即结算”。
+          </div>
+          <div class="receipt-content" id="receipt-content" hidden>
+            <div class="receipt-head">
+              <div>
+                <p class="panel-label">Last Checkout</p>
+                <h3>澄禾超市购物小票</h3>
+              </div>
+              <span class="receipt-badge" id="receipt-badge">普通用户</span>
+            </div>
+            <div class="receipt-items" id="receipt-items"></div>
+            <div class="receipt-totals">
+              <div><span>原价</span><strong id="receipt-original">¥0.00</strong></div>
+              <div><span>优惠</span><strong id="receipt-offer">¥0.00</strong></div>
+              <div class="summary-total"><span>实付</span><strong id="receipt-final">¥0.00</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="admin">
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h2>管理员商品管理面板</h2>
+          </div>
+          <p class="section-note">
+            对应 `addproduct()`、`showall()`、`deleteProduct()`、`updateproduct()`、`findproduct()`、
+            `saveTofile()` 与 `loadfromfile()`。
+          </p>
+        </div>
+
+        <div class="admin-layout">
+          <section class="admin-card">
+            <div class="panel-head">
+              <div>
+                <p class="panel-label">Product Form</p>
+                <h3>新增 / 更新商品</h3>
+              </div>
+            </div>
+
+            <form class="admin-form" id="product-form" novalidate>
+              <label class="field">
+                <span>商品编号</span>
+                <input id="product-id" name="id" type="number" placeholder="更新时填写，新增可留空">
+              </label>
+              <label class="field">
+                <span>商品名称</span>
+                <input id="product-name" name="name" type="text" placeholder="例如：有机纯牛奶">
+              </label>
+              <label class="field">
+                <span>商品类别</span>
+                <input id="product-category" name="category" type="text" placeholder="例如：乳制品">
+              </label>
+              <label class="field two-col">
+                <span>商品价格</span>
+                <input id="product-price" name="price" type="number" step="0.01" placeholder="例如：12.80">
+              </label>
+              <label class="field two-col">
+                <span>商品库存</span>
+                <input id="product-stock" name="stock" type="number" placeholder="例如：30">
+              </label>
+              <label class="field">
+                <span>生产日期</span>
+                <input id="product-date" name="date" type="date">
+              </label>
+              <div class="form-actions wrap">
+                <button class="button button-primary" id="add-product-button" type="button">新增商品</button>
+                <button class="ghost-button" id="update-product-button" type="button">更新商品</button>
+                <button class="ghost-button" id="reset-form-button" type="reset">清空表单</button>
+              </div>
+              <p class="form-feedback" id="product-feedback" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <section class="admin-card">
+            <div class="panel-head">
+              <div>
+                <p class="panel-label">Find & Storage</p>
+                <h3>查找 / 保存 / 读取</h3>
+              </div>
+            </div>
+
+            <div class="finder-box">
+              <label class="field">
+                <span>按编号查找</span>
+                <input id="find-id-input" type="number" placeholder="输入商品编号">
+              </label>
+              <label class="field">
+                <span>按名称查找</span>
+                <input id="find-name-input" type="text" placeholder="输入商品名称">
+              </label>
+              <div class="form-actions wrap">
+                <button class="ghost-button" id="find-by-id-button" type="button">查编号</button>
+                <button class="ghost-button" id="find-by-name-button" type="button">查名称</button>
+                <button class="ghost-button" id="save-data-button" type="button">保存数据</button>
+                <button class="ghost-button" id="load-data-button" type="button">读取数据</button>
+              </div>
+              <div class="search-result" id="search-result">还没有查找结果。</div>
+            </div>
+          </section>
+        </div>
+
+        <section class="admin-card admin-table-card">
+          <div class="panel-head">
+            <div>
+              <p class="panel-label">Inventory</p>
+              <h3>全部商品</h3>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th>编号</th>
+                  <th>名称</th>
+                  <th>类别</th>
+                  <th>价格</th>
+                  <th>库存</th>
+                  <th>生产日期</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="product-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <button class="back-to-top" id="back-to-top" type="button" aria-label="返回顶部">回到顶部</button>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
