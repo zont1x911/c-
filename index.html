@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>澄禾超市｜客户购物与商品管理网站</title>
+  <title>C语言超市管理系统｜商品管理、购物车、订单流水与销售统计</title>
   <meta
     name="description"
-    content="基于 C 语言超市系统设计的网页版本，支持客户登录、商品浏览、分类筛选、购物车、VIP 结算与管理员商品管理。"
+    content="基于 C 语言结构体数组和文件读写实现的小型超市管理系统，支持商品管理、VIP 折扣、库存预警、补货、订单流水和销售统计。"
   >
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +23,7 @@
         <a class="brand" href="#top">
           <span class="brand-mark">CH</span>
           <span class="brand-copy">
-            <strong>澄禾超市 Web 系统</strong>
+            <strong>C语言超市管理系统</strong>
             <small>Based on the C supermarket functions</small>
           </span>
         </a>
@@ -32,17 +32,18 @@
           <a href="#cart-panel">购物车</a>
           <a href="#receipt">结算小票</a>
           <a href="#admin">管理员面板</a>
+          <a href="#sales">销售统计</a>
         </div>
       </nav>
 
       <section class="hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">Customer Facing Site</p>
-          <h1>把 C 语言超市系统，做成客户真正能用的网页。</h1>
+          <h1>C语言超市管理系统</h1>
           <p class="hero-text">
-            这个网站按你给的 C 程序逻辑实现，保留了普通用户 / VIP 登录、
-            浏览商品、按类别查找、加入购物车、清空购物车、结算与 VIP 折扣，
-            同时也加入了管理员商品管理面板，方便演示整套业务流程。
+            基于 C 语言结构体数组和文件读写实现，系统分为用户端和管理员端。
+            支持商品管理、用户购物、VIP 折扣、购物车、库存预警、商品补货、
+            订单记录、销售流水和销售统计，模拟真实超市从入库到经营统计的完整业务流程。
           </p>
           <div class="hero-actions">
             <a class="button button-primary" href="#shop">开始购物</a>
@@ -51,19 +52,20 @@
           <div class="quick-badges">
             <span>普通用户账号：`user / 123456`</span>
             <span>VIP 账号：`vipuser / 888888`</span>
+            <span>管理员账号：`admin / 123456`</span>
           </div>
           <ul class="hero-metrics">
             <li class="metric-card">
-              <strong data-count-up="7" data-suffix="项">0</strong>
+              <strong data-count-up="8" data-suffix="项">0</strong>
               <span>客户侧核心功能</span>
             </li>
             <li class="metric-card">
-              <strong data-count-up="6" data-suffix="项">0</strong>
+              <strong data-count-up="11" data-suffix="项">0</strong>
               <span>管理员侧操作</span>
             </li>
             <li class="metric-card">
-              <strong data-count-up="9" data-suffix="折">0</strong>
-              <span>VIP 结算优惠</span>
+              <strong data-count-up="2" data-suffix="个">0</strong>
+              <span>数据文件持久化</span>
             </li>
           </ul>
         </div>
@@ -176,7 +178,7 @@
             <h2>结算小票</h2>
           </div>
           <p class="section-note">
-            对应 `checkout()`，结算后会同步扣减库存，并保存到浏览器本地数据中。
+            对应 `checkout()` 与 `addorderrecord()`，结算后会同步扣减库存并生成订单流水。
           </p>
         </div>
 
@@ -188,7 +190,7 @@
             <div class="receipt-head">
               <div>
                 <p class="panel-label">Last Checkout</p>
-                <h3>澄禾超市购物小票</h3>
+                <h3>C语言超市购物小票</h3>
               </div>
               <span class="receipt-badge" id="receipt-badge">普通用户</span>
             </div>
@@ -209,11 +211,37 @@
             <h2>管理员商品管理面板</h2>
           </div>
           <p class="section-note">
-            对应 `addproduct()`、`showall()`、`deleteProduct()`、`updateproduct()`、`findproduct()`、
-            `saveTofile()` 与 `loadfromfile()`。
+            对应 `adminlogin()`、`addproduct()`、`restockproduct()`、`showorders()`、`salesreport()`、
+            `saveTofile()`、`loadfromfile()`、`saveorderstofile()` 与 `loadordersfromfile()`。
           </p>
         </div>
 
+        <section class="admin-card admin-auth-card">
+          <div class="panel-head">
+            <div>
+              <p class="panel-label">Admin Login</p>
+              <h3>管理员登录</h3>
+            </div>
+            <span class="status-pill" id="admin-status">未登录</span>
+          </div>
+          <form class="admin-form admin-login-form" id="admin-login-form" novalidate>
+            <label class="field">
+              <span>管理员账号</span>
+              <input id="admin-username" type="text" placeholder="admin">
+            </label>
+            <label class="field">
+              <span>管理员密码</span>
+              <input id="admin-password" type="password" placeholder="123456">
+            </label>
+            <div class="form-actions wrap">
+              <button class="button button-primary" type="submit">进入后台</button>
+              <button class="ghost-button" id="admin-logout-button" type="button">退出后台</button>
+            </div>
+            <p class="form-feedback" id="admin-login-feedback" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <div id="admin-content" hidden>
         <div class="admin-layout">
           <section class="admin-card">
             <div class="panel-head">
@@ -260,6 +288,30 @@
           <section class="admin-card">
             <div class="panel-head">
               <div>
+                <p class="panel-label">Restock</p>
+                <h3>商品补货</h3>
+              </div>
+            </div>
+
+            <div class="finder-box">
+              <label class="field">
+                <span>商品编号</span>
+                <input id="restock-id-input" type="number" placeholder="输入要补货的商品编号">
+              </label>
+              <label class="field">
+                <span>补货数量</span>
+                <input id="restock-quantity-input" type="number" placeholder="必须大于 0">
+              </label>
+              <div class="form-actions wrap">
+                <button class="button button-primary" id="restock-button" type="button">确认补货</button>
+              </div>
+              <div class="search-result" id="restock-result">库存预警后，可在这里按商品编号补货。</div>
+            </div>
+          </section>
+
+          <section class="admin-card">
+            <div class="panel-head">
+              <div>
                 <p class="panel-label">Find & Storage</p>
                 <h3>查找 / 保存 / 读取</h3>
               </div>
@@ -277,8 +329,8 @@
               <div class="form-actions wrap">
                 <button class="ghost-button" id="find-by-id-button" type="button">查编号</button>
                 <button class="ghost-button" id="find-by-name-button" type="button">查名称</button>
-                <button class="ghost-button" id="save-data-button" type="button">保存数据</button>
-                <button class="ghost-button" id="load-data-button" type="button">读取数据</button>
+                <button class="ghost-button" id="save-data-button" type="button">保存商品和订单</button>
+                <button class="ghost-button" id="load-data-button" type="button">读取商品和订单</button>
               </div>
               <div class="search-result" id="search-result">还没有查找结果。</div>
             </div>
@@ -310,6 +362,49 @@
             </table>
           </div>
         </section>
+
+        <section class="admin-card admin-table-card" id="sales">
+          <div class="panel-head">
+            <div>
+              <p class="panel-label">Sales Flow</p>
+              <h3>销售流水</h3>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th>订单编号</th>
+                  <th>用户类型</th>
+                  <th>商品种类数</th>
+                  <th>原价</th>
+                  <th>实付金额</th>
+                </tr>
+              </thead>
+              <tbody id="order-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="admin-card report-card">
+          <div class="panel-head">
+            <div>
+              <p class="panel-label">Sales Report</p>
+              <h3>销售统计报表</h3>
+            </div>
+          </div>
+
+          <div class="report-grid">
+            <div><span>订单总数</span><strong id="report-order-count">0</strong></div>
+            <div><span>普通用户订单数</span><strong id="report-normal-count">0</strong></div>
+            <div><span>VIP 用户订单数</span><strong id="report-vip-count">0</strong></div>
+            <div><span>总营业额</span><strong id="report-total-money">¥0.00</strong></div>
+            <div><span>累计优惠金额</span><strong id="report-discount-money">¥0.00</strong></div>
+            <div><span>平均每单消费</span><strong id="report-average-money">¥0.00</strong></div>
+          </div>
+        </section>
+        </div>
       </section>
     </main>
   </div>

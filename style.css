@@ -330,6 +330,23 @@ h1 {
   font-size: 1.08rem;
 }
 
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(24, 32, 24, 0.06);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.status-pill.is-success {
+  color: var(--green-deep);
+  background: var(--green-soft);
+}
+
 .status-dot {
   width: 12px;
   height: 12px;
@@ -364,6 +381,10 @@ h1 {
 .admin-form {
   display: grid;
   gap: 14px;
+}
+
+.admin-login-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .field,
@@ -543,6 +564,10 @@ h1 {
   padding: 22px;
 }
 
+.admin-auth-card {
+  margin-bottom: 18px;
+}
+
 .cart-panel {
   position: sticky;
   top: 20px;
@@ -659,6 +684,33 @@ h1 {
   overflow: hidden;
 }
 
+.report-card {
+  margin-top: 18px;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.report-grid div {
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.report-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.report-grid strong {
+  font-size: 1.35rem;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -761,7 +813,8 @@ h1 {
 @media (max-width: 1080px) {
   .hero-grid,
   .shop-layout,
-  .admin-layout {
+  .admin-layout,
+  .report-grid {
     grid-template-columns: 1fr;
   }
 
@@ -800,7 +853,8 @@ h1 {
   }
 
   .hero-metrics,
-  .product-grid {
+  .product-grid,
+  .admin-login-form {
     grid-template-columns: 1fr;
   }
 

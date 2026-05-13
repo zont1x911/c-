@@ -1,6 +1,7 @@
 const STORAGE_KEYS = {
   products: "supermarket-products-v2",
-  receipt: "supermarket-last-receipt-v2"
+  receipt: "supermarket-last-receipt-v2",
+  orders: "supermarket-orders-v2"
 };
 
 const seedProducts = [
@@ -15,7 +16,9 @@ const seedProducts = [
 let products = loadProductsFromStorage();
 let cart = [];
 let userType = 0;
+let adminLoggedIn = false;
 let lastReceipt = loadReceiptFromStorage();
+let orders = loadOrdersFromStorage();
 
 const loginForm = document.getElementById("login-form");
 const loginFeedback = document.getElementById("login-feedback");
@@ -46,6 +49,15 @@ const addProductButton = document.getElementById("add-product-button");
 const updateProductButton = document.getElementById("update-product-button");
 const resetFormButton = document.getElementById("reset-form-button");
 const productTableBody = document.getElementById("product-table-body");
+const adminLoginForm = document.getElementById("admin-login-form");
+const adminLogoutButton = document.getElementById("admin-logout-button");
+const adminStatus = document.getElementById("admin-status");
+const adminContent = document.getElementById("admin-content");
+const adminLoginFeedback = document.getElementById("admin-login-feedback");
+const restockIdInput = document.getElementById("restock-id-input");
+const restockQuantityInput = document.getElementById("restock-quantity-input");
+const restockButton = document.getElementById("restock-button");
+const restockResult = document.getElementById("restock-result");
 const findIdInput = document.getElementById("find-id-input");
 const findNameInput = document.getElementById("find-name-input");
 const findByIdButton = document.getElementById("find-by-id-button");
@@ -53,6 +65,13 @@ const findByNameButton = document.getElementById("find-by-name-button");
 const saveDataButton = document.getElementById("save-data-button");
 const loadDataButton = document.getElementById("load-data-button");
 const searchResult = document.getElementById("search-result");
+const orderTableBody = document.getElementById("order-table-body");
+const reportOrderCount = document.getElementById("report-order-count");
+const reportNormalCount = document.getElementById("report-normal-count");
+const reportVipCount = document.getElementById("report-vip-count");
+const reportTotalMoney = document.getElementById("report-total-money");
+const reportDiscountMoney = document.getElementById("report-discount-money");
+const reportAverageMoney = document.getElementById("report-average-money");
 const backToTop = document.getElementById("back-to-top");
 const toast = document.getElementById("toast");
 const navLinks = document.querySelectorAll(".nav-links a");
@@ -79,12 +98,26 @@ function loadReceiptFromStorage() {
   }
 }
 
+function loadOrdersFromStorage() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.orders);
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 function saveProductsToStorage() {
   localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(products));
 }
 
 function saveReceiptToStorage() {
   localStorage.setItem(STORAGE_KEYS.receipt, JSON.stringify(lastReceipt));
+}
+
+function saveOrdersToStorage() {
+  localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(orders));
 }
 
 function showToast(message) {
@@ -103,6 +136,12 @@ function formatMoney(value) {
 function getUserTypeLabel() {
   if (userType === 1) return "普通用户";
   if (userType === 2) return "尊贵的 VIP 客户";
+  return "未登录";
+}
+
+function getOrderUserLabel(type) {
+  if (type === 2) return "VIP 用户";
+  if (type === 1) return "普通用户";
   return "未登录";
 }
 
@@ -261,12 +300,55 @@ function renderProductTable() {
   `).join("");
 }
 
+function renderOrders() {
+  if (orders.length === 0) {
+    orderTableBody.innerHTML = '<tr><td colspan="5">暂无订单，结算后会自动生成销售流水。</td></tr>';
+    return;
+  }
+
+  orderTableBody.innerHTML = orders.map((order) => `
+    <tr>
+      <td>${order.orderid}</td>
+      <td>${getOrderUserLabel(order.usertype)}</td>
+      <td>${order.itemcount}</td>
+      <td>${formatMoney(order.originaltotal)}</td>
+      <td>${formatMoney(order.finaltotal)}</td>
+    </tr>
+  `).join("");
+}
+
+function renderSalesReport() {
+  const normalCount = orders.filter((order) => order.usertype === 1).length;
+  const vipCount = orders.filter((order) => order.usertype === 2).length;
+  const totalMoney = orders.reduce((sum, order) => sum + order.finaltotal, 0);
+  const discountMoney = orders.reduce((sum, order) => {
+    return sum + (order.originaltotal - order.finaltotal);
+  }, 0);
+  const averageMoney = orders.length > 0 ? totalMoney / orders.length : 0;
+
+  reportOrderCount.textContent = String(orders.length);
+  reportNormalCount.textContent = String(normalCount);
+  reportVipCount.textContent = String(vipCount);
+  reportTotalMoney.textContent = formatMoney(totalMoney);
+  reportDiscountMoney.textContent = formatMoney(discountMoney);
+  reportAverageMoney.textContent = formatMoney(averageMoney);
+}
+
+function renderAdminState() {
+  adminContent.hidden = !adminLoggedIn;
+  adminStatus.textContent = adminLoggedIn ? "已登录" : "未登录";
+  adminStatus.classList.toggle("is-success", adminLoggedIn);
+}
+
 function refreshAllViews() {
   populateCategoryFilter();
   renderProducts();
   renderCart();
   renderReceipt();
   renderProductTable();
+  renderOrders();
+  renderSalesReport();
+  renderAdminState();
   updateUserStatus();
 }
 
@@ -328,11 +410,21 @@ function checkout() {
     finalTotal
   };
 
+  const nextOrderId = orders.length > 0 ? Math.max(...orders.map((order) => order.orderid)) + 1 : 1;
+  orders.push({
+    orderid: nextOrderId,
+    usertype: userType,
+    originaltotal: originalTotal,
+    finaltotal: finalTotal,
+    itemcount: cart.length
+  });
+
   cart = [];
   saveProductsToStorage();
   saveReceiptToStorage();
+  saveOrdersToStorage();
   refreshAllViews();
-  showToast("结算成功，欢迎下次光临");
+  showToast(`结算成功，订单编号：${nextOrderId}`);
 }
 
 function getFormProductData() {
@@ -411,6 +503,32 @@ function deleteProduct(id) {
   showToast(`已删除商品：${deletedName}`);
 }
 
+function restockProduct() {
+  const id = Number(restockIdInput.value);
+  const addQuantity = Number(restockQuantityInput.value);
+
+  if (Number.isNaN(id) || Number.isNaN(addQuantity)) {
+    restockResult.textContent = "请输入有效的商品编号和补货数量。";
+    return;
+  }
+  if (addQuantity <= 0) {
+    restockResult.textContent = "补货数量必须大于 0。";
+    return;
+  }
+
+  const index = findProductIndexById(id);
+  if (index === -1) {
+    restockResult.textContent = "没有找到该商品，补货失败。";
+    return;
+  }
+
+  products[index].stock += addQuantity;
+  saveProductsToStorage();
+  refreshAllViews();
+  restockResult.textContent = `补货成功：${products[index].name} 本次补货 ${addQuantity}，当前库存 ${products[index].stock}。`;
+  showToast("商品补货成功");
+}
+
 function fillFormWithProduct(id) {
   const product = products.find((item) => item.id === id);
   if (!product) return;
@@ -452,13 +570,15 @@ function findProductByName() {
 
 function saveData() {
   saveProductsToStorage();
-  showToast("数据已保存到浏览器本地");
+  saveOrdersToStorage();
+  showToast("商品和订单数据已保存到浏览器本地");
 }
 
 function loadData() {
   products = loadProductsFromStorage();
+  orders = loadOrdersFromStorage();
   refreshAllViews();
-  showToast("已从本地读取商品数据");
+  showToast("已从本地读取商品和订单数据");
 }
 
 loginForm.addEventListener("submit", (event) => {
@@ -495,6 +615,33 @@ logoutButton.addEventListener("click", () => {
   showToast("已退出登录");
 });
 
+adminLoginForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const username = document.getElementById("admin-username").value.trim();
+  const password = document.getElementById("admin-password").value.trim();
+  adminLoginFeedback.classList.remove("is-success", "is-error");
+
+  if (username === "admin" && password === "123456") {
+    adminLoggedIn = true;
+    adminLoginFeedback.textContent = "管理员登录成功，已进入后台。";
+    adminLoginFeedback.classList.add("is-success");
+  } else {
+    adminLoggedIn = false;
+    adminLoginFeedback.textContent = "账号或密码错误，无法进入后台。";
+    adminLoginFeedback.classList.add("is-error");
+  }
+
+  renderAdminState();
+});
+
+adminLogoutButton.addEventListener("click", () => {
+  adminLoggedIn = false;
+  adminLoginForm.reset();
+  adminLoginFeedback.textContent = "已退出管理员后台。";
+  adminLoginFeedback.classList.remove("is-success", "is-error");
+  renderAdminState();
+});
+
 categoryFilter.addEventListener("change", renderProducts);
 searchInput.addEventListener("input", renderProducts);
 
@@ -527,6 +674,7 @@ clearCartButton.addEventListener("click", clearCart);
 checkoutButton.addEventListener("click", checkout);
 addProductButton.addEventListener("click", addProduct);
 updateProductButton.addEventListener("click", updateProduct);
+restockButton.addEventListener("click", restockProduct);
 resetFormButton.addEventListener("click", () => window.setTimeout(resetProductFeedback, 0));
 
 productTableBody.addEventListener("click", (event) => {
