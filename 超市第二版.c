@@ -22,7 +22,7 @@ struct caritem
 	float price;
 	int quantity;
  } ;
-struct order//超市流水
+struct order//超市流水 
 {
     int orderid;//订单编号
     int usertype;//用户类型
@@ -34,9 +34,9 @@ struct product product[100];
 struct caritem cart[100];
 struct order orders[100];
 
-void usermenu();//客户
-void attendant();//管理员
-int adminlogin();//管理员登录
+void usermenu();//客户 
+void attendant();//管理员 
+int adminlogin();//管理员登录 
 void addtocart();
 void showcart();
 void showmenu();
@@ -61,17 +61,17 @@ void salesreport();
 void saveorderstofile();
 void loadordersfromfile();
 int findproductindexbyid(int id);
-int cartcount = 0;// 商品种类并非商品总数
+int cartcount = 0;// 商品种类并非商品总数 
 int count = 0;
-int usertype = 0;
+int usertype = 0; 
 int nextid = 1;
 int ordercount = 0;
 int nextorderid = 1;
 int main()
-{
+{	
 	loadfromfile();
 	loadordersfromfile();
-
+	
 	printf("\n============超市系统===============\n");
 	printf("1.管理员系统\r\n");
 	printf("2.用户端\r\n");
@@ -117,22 +117,22 @@ void usermenu()
 	while(1)
 	{
 		printf("\n============用户端==============\n");
-
+		
 		if(usertype == 0)
 		{
 			printf("未登录\r\n");
-		 }
+		 } 
 		else if(usertype == 1)
 		{
 			printf("当前身份：普通用户");
 		}
 		else if(usertype == 2)
 		{
-			printf("当前身份：尊贵的VIP客户");
+			printf("当前身份：尊贵的VIP客户"); 
 		}
-
-
-
+		
+		
+		
 		printf("1.浏览商品\r\n");
 		printf("2.加入购物车\r\n");
 		printf("3.查看购物车\r\n");
@@ -144,7 +144,7 @@ void usermenu()
 		printf("0.返回\r\n");
 		printf("请选择：\r\n");
 
-
+		
 		scanf("%d",&f);
 		switch(f)
 		{
@@ -174,11 +174,11 @@ void usermenu()
 				break;
 			case 0:
 				printf("thanks for using\r\n");
-				return;
+				return;		
 			default:
 				printf("error\r\n");
-
-
+			
+			
 		}
 	}
 }
@@ -186,14 +186,14 @@ int adminlogin()
 {
 	char username[50];
 	char password[50];
-
+	
 	printf("\n======== 管理员登录 =========\n");
 	printf("请输入管理员账号:\r\n");
 	scanf("%s",username);
-
+	
 	printf("请输入管理员密码:\r\n");
-	scanf("%s",password);
-
+	scanf("%s",password); 
+	
 	if(strcmp(username,"admin") == 0&& strcmp(password,"123456") == 0)
 	{
 		printf("管理员登录成功，欢迎进入后台\r\n");
@@ -208,17 +208,17 @@ void loginuser()
 {
 	char username[50];
 	char password[50];
-
+	
 	printf("\n========== 用户登录 ============\n");
 	printf("请输入账号:\r\n");
 	scanf("%s",username);
 	printf("请输入密码:\r\n");
 	scanf("%s",password);
-
+	
 	if(strcmp(username,"user") == 0 && strcmp(password,"123456") == 0)
 	{
 		usertype = 1;
-		printf("你好，用户\r\n");
+		printf("你好，用户\r\n");	
 	}
 	else if(strcmp(username,"vipuser") == 0 && strcmp(password,"888888") == 0)
 	{
@@ -236,25 +236,25 @@ void deletecartitem()
 	int id;
 	int i;
 	int index = -1;
-
+	
 	if(cartcount == 0)
 	{
 		printf("购物车为空，无法删除\r\n");
 		return;
-		}
+		}	
 	showcart();
-
+	
 	printf("请删除要删除的商品编号:\r\n");
 	scanf("%d",&id);
-
+	
 	for(i = 0;i < cartcount;i++)
 	{
 		if(cart[i].productid == id)
 		{
 			index = i;
-				break;
+			break;
 		}
-
+		
 		}
 	if(index == -1)
 	{
@@ -264,10 +264,10 @@ void deletecartitem()
 	for(i = index;i < cartcount -1;i++)
 	{
 		cart[i] = cart[i+1];
-					}
+					}	
 	cartcount--;
-	printf("该商品删除成功\r\n");
- }
+	printf("该商品删除成功\r\n");			
+ } 
 void showProductsForCustomer()
 {
     int i;
@@ -299,12 +299,12 @@ void showproductbycategory()
 	char category[50];
 	int i;
 	int found = 0;
-
+	
 	printf("请输入要查看的商品类别:");
 	scanf("%s",category);
-
+	
 	printf("\n========= 类别商品列表 ==========\n");
-
+	
 	for(i = 0;i < count;i++)
 	{
 		if(product[i].stock > 0 && strcmp(product[i].category,category) == 0)
@@ -330,8 +330,8 @@ void checkout()
 	float total = 0;
 	float originaltotal = 0;
 	float discount;
-
-
+	
+	
 	if(usertype == 0)
 	{
 		printf("请先登录！\r\n");
@@ -342,16 +342,16 @@ void checkout()
 		printf("购物车为空\r\n");
 		return;
 	}
-
+	
 	printf("\n============ 购物小票 ==============\n");
-
+	
 	for(i = 0;i < cartcount;i++)
-	{
+	{	
 		float subtotal = cart[i].price * cart[i].quantity;
 		index = findproductindexbyid(cart[i].productid);
 		if(index != -1)
 		{
-			product[index].stock -=cart[i].quantity;//保证库存的同步
+			product[index].stock -=cart[i].quantity;//保证库存的同步 
 		}
 		printf("商品：%s\r\n",cart[i].name);
 		printf("单价:%.2f 数量：%d 总计:%.2f\r\n",cart[i].price,cart[i].quantity,subtotal);
@@ -360,18 +360,18 @@ void checkout()
 	}
 	total = originaltotal;
 	if(usertype == 2)
-	{
+	{	
 		discount = originaltotal * 0.1f;
-		total = originaltotal - discount;
+		total = originaltotal - discount; 
 		printf("VIP享受9折优惠! 已优惠：%.2f\r\n",discount);
-
+	
 	}
 	printf("原价：%.2f\r\n",originaltotal);
 	printf("实付:%.2f\r\n",total);
 	printf("结算成功！欢迎下次光临！\r\n");
-
+	
 	addorderrecord(originaltotal, total, cartcount);
-
+	
 	saveorderstofile();
 	cartcount = 0;
 	saveTofile();
@@ -381,9 +381,9 @@ void addtocart()
 	int id,quantity;
 	int productindex;
 	int i;
-
-	showProductsForCustomer();
-
+	
+	showProductsForCustomer(); 
+	
 	printf("请输入要购买的商品编号：\r\n");
 	scanf("%d",&id);
 	productindex = findproductindexbyid(id);
@@ -392,10 +392,10 @@ void addtocart()
 		printf("error\r\n");
 		return;
 	}
-
+	
 	printf("请输入购买数量:\r\n");
 	scanf("%d",&quantity);
-
+	
 	if(quantity <= 0)
 	{
 		printf("error\r\n");
@@ -421,12 +421,17 @@ void addtocart()
 			return;
 		}
 	}
+	if(cartcount >= 100)//这个是判断种类是不是超了，不是看数量 
+	{
+		printf("购物车已满，无法继续添加商品\r\n");
+		return;
+	}
 	cart[cartcount].productid = product[productindex].id;
 	strcpy(cart[cartcount].name,product[productindex].name);
 	cart[cartcount].price = product[productindex].price;
 	cart[cartcount].quantity = quantity;
 	cartcount++;
-
+	
 	printf("商品已加入购物车\r\n");
 }
 int findproductindexbyid(int id)
@@ -444,34 +449,34 @@ int findproductindexbyid(int id)
 void showcart()
 {
 	int i;
-	float total = 0;
+	float total = 0; 
 
-
+	
 	if(cartcount == 0)
 	{
 		printf("购物车为空\r\n");
 		return;
 	}
 	printf("\n========购物车=========\n");
-
+	
 	for(i = 0;i < cartcount;i++)
 	{
 		float subtotal = cart[i].price*cart[i].quantity;
-
+		
 		printf("商品编号：%d\r\n",cart[i].productid);
 		printf("商品名称：%s\r\n",cart[i].name);
 		printf("单价：%.2f\r\n",cart[i].price);
 		printf("数量：%d\r\n",cart[i].quantity);
 		printf("总计：%.2f\r\n",subtotal);
 		printf("----------------------\r\n");
-
+		
 		total += subtotal;
 	}
 	printf("总价：%.2f\r\n",total);
 }
 void clearCart()
-{
-
+{	
+	
     cartcount = 0;
     printf("购物车已清空\r\n");
 }
@@ -513,11 +518,11 @@ void attendant()
 				restockproduct();
 				break;
 			case 10:
-				showorders();
-				break;
+    			showorders();
+    			break;
 			case 11:
-				salesreport();
-				break;
+    			salesreport();
+    			break;
 			case 0:
 				saveTofile();
 				saveorderstofile();
@@ -529,9 +534,9 @@ void attendant()
 				printf("请选择：\r\n");
 				return;
 			default:
-				printf("error\r\n");
+				printf("error\r\n");	
 		}
-		}
+		}		
 }
 void showmenu()
 {
@@ -552,6 +557,11 @@ void showmenu()
 }
 void addproduct()
 {
+	if(count >= 100)
+	{
+		printf("商品数量已满，无法继续添加.\r\n");
+		return;
+	 } 
 	printf("\n------添加商品------\n");
 	printf("输入商品名称\r\n");
 	scanf("%s",product[count].name);
@@ -559,18 +569,28 @@ void addproduct()
 	scanf("%d %d %d",&product[count].produceDate.year,&product[count].produceDate.mouth,&product[count].produceDate.day);
 	printf("输入价格：");
 	scanf("%f",&product[count].price);
+	if(product[count].price <= 0)
+	{
+		printf("价格必须大于0,添加失败\r\n");
+		return;
+	}
 	printf("输入库存：");
 	scanf("%d",&product[count].stock);
+	if(product[count].stock < 0)
+	{
+		printf("库存不能为负数，添加失败\r\n");
+		return;
+	}
 	printf("请输入商品种类:");
 	scanf("%s",product[count].category);
-
+	
 	product[count].id = nextid;
 	nextid++;
-
+	
 	count++;
-
+	 
 	printf("添加成功");
-
+		
 }
 void showall()
 {
@@ -585,18 +605,18 @@ void showall()
 	for(n = 0;n < count;n++)
 	{
 		printf("\n%-5d %-15s %-15s %-10.2f %-10d %04d-%02d-%02d\n",product[n].id,product[n].name,product[n].category,product[n].price,product[n].stock,product[n].produceDate.year,product[n].produceDate.mouth,product[n].produceDate.day);
-
-
-	 }
+		
+		
+	 } 
 
 }
 void stockwarning()
 {
 	int i;
 	int found = 0;
-
-	printf("\n========= 库存预警 ============\n");
-
+	
+	printf("\n========= 库存预警 ============\n"); 
+	
 	for(i = 0;i < count;i++)
 	{
 		if(product[i].stock <= 5)
@@ -608,7 +628,7 @@ void stockwarning()
 			printf("------------------------\r\n");
 			found = 1;
 		}
-
+		
 	}
 	if(found == 0)
 		{
@@ -623,19 +643,19 @@ void deleteProduct()
 	char deletename[100];
 	printf("请输入要删除的商品编号:");
 	scanf("%d",&id);
-	//变量区
+	//变量区 
 	for(i = 0;i < count;i++)
 	{
 		if(product[i].id == id)
 		{
 			index = i;
-				break;
+			break;
 		}
 	}
 	//查找区
 	if(index == -1)
 	{
-
+		
 		printf("error\r\n");
 		return ;
 	}
@@ -695,10 +715,10 @@ void updateproduct()
 {
 	int id;
 	int index;
-
+	
 	printf("请输入修改商品的编号：");
 	scanf("%d",&id);
-
+	
 	index = -1;
 	int i;
 	for(i = 0;i < count;i++)
@@ -706,40 +726,53 @@ void updateproduct()
 		if(product[i].id == id)
 		{
 			index = i;
-				break;
+			break;
 		}
-
+	
 		}
 	if(index == -1)
 		{
 			printf("error\r\n");
 			return;
-
-	 }
+		
+	 } 
 	printf("请输入新名称：");
 	scanf("%s",product[index].name);
-
+	
+	printf("请输入新类别：");
+	scanf("%s",product[index].category); 
+	
 	printf("请输入新价格：");
 	scanf("%f",&product[index].price);
-
+	if(product[index].price <= 0)
+	{
+		printf("价格必须大于0,修改失败\r\n");
+		return;
+	}
+	
 	printf("请输入新库存：");
 	scanf("%d",&product[index].stock);
-
+	if(product[index].stock < 0)
+	{
+		printf("库存不能为负\r\n");
+		return;
+	}
+	
 	printf("请输入新生产日期：");
 	scanf("%d %d %d",&product[index].produceDate.year,&product[index].produceDate.mouth,&product[index].produceDate.day);
-
+	
 	 }
 void findproduct()
 	{
 		int choice;
-		printf("1.按编号查找\r\n");
+		printf("1.按编号查找\r\n"); 
 		printf("2.按名称查找\r\n");
 		printf("请选择：");
 		scanf("%d",&choice);
 		if(choice == 1)
 		{
-
-
+			
+		  
 		int id;
 		int m;
 		int found = 0;
@@ -757,14 +790,14 @@ void findproduct()
 				printf("生产日期:%d-%d-%d\r\n",product[m].produceDate.year,product[m].produceDate.mouth,product[m].produceDate.day);
 				found = 1;
 				break;
-
+				
 			}
-
+			
 		}
 		if(found == 0)
 			{
 				printf("error\r\n");
-
+				
 			}
 		}
 		else if(choice == 2)
@@ -772,10 +805,10 @@ void findproduct()
 			char name[100];
 			int i;
 			int found = 0;
-
+			
 			printf("请输入查找商品名称：");
 			scanf("%s",name);
-
+			
 			for(i = 0;i < count;i++)
 			{
 				if(strcmp(product[i].name,name) == 0)
@@ -787,7 +820,7 @@ void findproduct()
 					printf("库存：%d\r\n",product[i].stock);
 					printf("生产日期：%d-%d-%d\r\n",product[i].produceDate.year,product[i].produceDate.mouth,product[i].produceDate.day);
 					found = 1;
-				}
+				}	
 			}
 			if(found == 0)
 			{
@@ -811,10 +844,10 @@ void saveTofile()
 		fwrite(&count,sizeof(int),1,fp);
 		fwrite(&nextid,sizeof(int),1,fp);
 		fwrite(product,sizeof(struct product),count,fp);
-
+		
 		fclose(fp);
 		printf("saved as FILE %s\r\n",DATA_FILE);
-
+		
 	}
 void loadfromfile()
 	{
@@ -824,18 +857,18 @@ void loadfromfile()
 		{
 			printf("未找到数据文件，从空数据开始\r\n");
 			count = 0;
-			nextid = 1;
+			nextid = 1; 
 			return;
 		}
-
+		
 		fread(&count,sizeof(int),1,fp);
 		fread(&nextid,sizeof(int),1,fp);
 		fread(product,sizeof(struct product),count,fp);
-
+		
 		fclose(fp);
 		printf("已从文件 %s 中读取数据，共 %d 条记录\r\n",DATA_FILE,count);
-
-
+		
+	
 	}
 void addorderrecord(float originaltotal, float finaltotal, int itemcount)
 {
@@ -859,19 +892,19 @@ void addorderrecord(float originaltotal, float finaltotal, int itemcount)
 void showorders()
 {
 	int i;
-
+	
 	if(ordercount == 0)
 	{
 		printf("暂无订单记录\r\n");
 		return;
 	}
-
+	
 	printf("\n========== 销售流水 =============\n");
-
+	
 	for(i = 0;i < ordercount;i++)
 	{
 		printf("订单编号：%d\r\n",orders[i].orderid);
-
+		
 		if(orders[i].usertype == 1)
 		{
 			printf("用户类型：普通用户\r\n");
@@ -884,13 +917,13 @@ void showorders()
 		{
 			printf("error\r\n");
 		}
-
+		
 		printf("商品种类数：%d\r\n",orders[i].itemcount);
 		printf("原价：%.2f\r\n",orders[i].originaltotal);
 		printf("实付金额：%.2f\r\n",orders[i].finaltotal);
-		printf("----------------------\r\n");
+		printf("----------------------\r\n");	
 	}
- }
+ } 
 void salesreport()
 {
 	int i;
@@ -898,17 +931,17 @@ void salesreport()
 	float discountmoney = 0;
 	int vipcount = 0;
 	int normalcount = 0;
-
+	
 	if(ordercount == 0)
 	{
 		printf("暂无数据，无法统计\r\n");
-		return;
+		return;	
 	}
 	for(i = 0;i < ordercount;i++)
 	{
 		totalmoney += orders[i].finaltotal;
 		discountmoney += orders[i].originaltotal - orders[i].finaltotal;
-
+		
 		if(orders[i].usertype == 2)
 		{
 			vipcount++;
@@ -918,7 +951,7 @@ void salesreport()
 			normalcount++;
 		}
 	}
-
+	
 	printf("\n========== 销售统计报表 ===========\n");
 	printf("订单总数:%d\r\n",ordercount);
 	printf("普通用户订单数：%d\r\n",normalcount);
@@ -926,8 +959,8 @@ void salesreport()
 	printf("总营业额：%.2f\r\n",totalmoney);
 	printf("累计优惠金额:%.2f\r\n",discountmoney);
 	printf("平均每单消费:%.2f\r\n",totalmoney/ordercount);
-
-
+	
+	
 }
 void saveorderstofile()
 {
@@ -938,14 +971,14 @@ void saveorderstofile()
 		printf("订单保存失败\r\n");
 		return;
 	}
-
+	
 	fwrite(&ordercount,sizeof(int),1,fp);
 	fwrite(&nextorderid,sizeof(int),1,fp);
 	fwrite(orders,sizeof(struct order),ordercount,fp);
-
+	
 	fclose(fp);
 	printf("订单数据已保存到 %s\r\n",ORDER_FILE);
-
+	
 }
 void loadordersfromfile()
 {
@@ -956,13 +989,13 @@ void loadordersfromfile()
 		printf("未找到订单文件，从空订单开始\r\n");
 		ordercount = 0;
 		nextorderid = 1;
-		return;
+		return;	
 	}
-
+	
 	fread(&ordercount,sizeof(int),1,fp);
 	fread(&nextorderid,sizeof(int),1,fp);
 	fread(orders,sizeof(struct order),ordercount,fp);
-
+	
 	fclose(fp);
-	printf("已读取订单数据，共%d条订单记录\r\n",ordercount);
+	printf("已读取订单数据，共%d条订单记录\r\n",ordercount);	 
 }

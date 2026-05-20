@@ -3,6 +3,8 @@ const STORAGE_KEYS = {
   receipt: "supermarket-last-receipt-v2",
   orders: "supermarket-orders-v2"
 };
+const MAX_PRODUCTS = 100;
+const MAX_CART_ITEMS = 100;
 
 const seedProducts = [
   { id: 1, name: "有机纯牛奶", category: "乳制品", price: 12.8, stock: 28, produceDate: "2026-04-10" },
@@ -371,6 +373,7 @@ function addToCart(productId, quantity) {
     }
     cart[cartIndex].quantity += quantity;
   } else {
+    if (cart.length >= MAX_CART_ITEMS) return showToast("购物车商品种类已达上限");
     cart.push({ productid: product.id, name: product.name, price: product.price, quantity });
   }
 
@@ -438,7 +441,8 @@ function getFormProductData() {
   if (!name || !category || !produceDate || Number.isNaN(price) || Number.isNaN(stock)) {
     return { error: "请先完整填写商品信息。" };
   }
-  if (price < 0 || stock < 0) return { error: "价格和库存不能小于 0。" };
+  if (price <= 0) return { error: "价格必须大于 0。" };
+  if (stock < 0) return { error: "库存不能小于 0。" };
 
   return {
     data: {
@@ -466,6 +470,7 @@ function resetProductFeedback() {
 function addProduct() {
   const { data, error } = getFormProductData();
   if (error) return setProductFeedback(error, "error");
+  if (products.length >= MAX_PRODUCTS) return setProductFeedback("商品数量已达上限，无法继续添加。", "error");
 
   const nextId = products.length > 0 ? Math.max(...products.map((product) => product.id)) + 1 : 1;
   products.push({ ...data, id: nextId });
@@ -711,7 +716,7 @@ document.addEventListener("scroll", () => {
 
 function initRevealTargets() {
   const revealTargets = document.querySelectorAll(
-    ".hero-copy, .hero-panel, .metric-card, .product-card, .cart-panel, .receipt-card, .admin-card"
+    ".hero-copy, .hero-panel, .metric-card, .product-card, .cart-panel, .receipt-card, .admin-card, .optimization-card"
   );
 
   const revealObserver = new IntersectionObserver((entries) => {

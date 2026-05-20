@@ -286,7 +286,8 @@ h1 {
 .product-card,
 .cart-panel,
 .receipt-card,
-.admin-card {
+.admin-card,
+.optimization-card {
   border: 1px solid var(--line);
   background: var(--surface);
   backdrop-filter: blur(12px);
@@ -560,8 +561,36 @@ h1 {
 
 .cart-panel,
 .receipt-card,
-.admin-card {
+.admin-card,
+.optimization-card {
   padding: 22px;
+}
+
+.optimization-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.optimization-card {
+  display: grid;
+  gap: 12px;
+}
+
+.optimization-card span {
+  color: var(--green-deep);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.optimization-card h3 {
+  font-size: 1.25rem;
+}
+
+.optimization-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
 }
 
 .admin-auth-card {
@@ -765,7 +794,8 @@ h1 {
 .product-card,
 .cart-panel,
 .receipt-card,
-.admin-card {
+.admin-card,
+.optimization-card {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 500ms ease, transform 500ms ease;
@@ -814,7 +844,8 @@ h1 {
   .hero-grid,
   .shop-layout,
   .admin-layout,
-  .report-grid {
+  .report-grid,
+  .optimization-grid {
     grid-template-columns: 1fr;
   }
 
@@ -854,7 +885,8 @@ h1 {
 
   .hero-metrics,
   .product-grid,
-  .admin-login-form {
+  .admin-login-form,
+  .optimization-grid {
     grid-template-columns: 1fr;
   }
 
@@ -900,6 +932,7 @@ h1 {
   .cart-panel,
   .receipt-card,
   .admin-card,
+  .optimization-card,
   .back-to-top,
   .toast {
     opacity: 1;

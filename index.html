@@ -33,6 +33,7 @@
           <a href="#receipt">结算小票</a>
           <a href="#admin">管理员面板</a>
           <a href="#sales">销售统计</a>
+          <a href="#stability">本次优化</a>
         </div>
       </nav>
 
@@ -201,6 +202,41 @@
               <div class="summary-total"><span>实付</span><strong id="receipt-final">¥0.00</strong></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="section" id="stability">
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">Stability</p>
+            <h2>小型稳定性优化</h2>
+          </div>
+          <p class="section-note">
+            本次优化围绕系统稳定性和后台数据可靠性展开，让结构体数组版本的超市系统更接近真实开发中的基础保护要求。
+          </p>
+        </div>
+
+        <div class="optimization-grid">
+          <article class="optimization-card">
+            <span>数组边界</span>
+            <h3>容量上限保护</h3>
+            <p>新增商品数量和购物车商品种类的上限判断，避免 `product[100]` 与 `cart[100]` 发生数组越界。</p>
+          </article>
+          <article class="optimization-card">
+            <span>数据合法性</span>
+            <h3>价格和库存校验</h3>
+            <p>添加和修改商品时拦截小于等于 0 的价格、负数库存，减少不符合真实业务逻辑的数据录入。</p>
+          </article>
+          <article class="optimization-card">
+            <span>后台完整性</span>
+            <h3>支持修改类别</h3>
+            <p>修改商品时可以同步更新类别，配合按类别浏览功能，管理员不必删除后重新添加商品。</p>
+          </article>
+          <article class="optimization-card">
+            <span>编译稳定</span>
+            <h3>统一函数命名</h3>
+            <p>确认声明、调用和实现都使用 `salesreport`，避免函数名不一致导致编译失败。</p>
+          </article>
         </div>
       </section>
 
